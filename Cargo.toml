@@ -1,0 +1,10 @@
+[package]
+name = "cailloux"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+evdev = "0.13.2"
+hidapi = "2.6.5"
+tokio = "1.49.0"
+zbus = "5.14.0"
