@@ -28,12 +28,9 @@
             (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
           ];
 
-          # shellHook = 
-          # let
-          #   pkg_config_path = (lib.makeLibraryPath [ udev ]);
-          # in ''
-          #   export PKG_CONFIG_PATH=${pkg_config_path}
-          # '';
+          shellHook = ''
+            fish
+          '';
         };
       }
     );
