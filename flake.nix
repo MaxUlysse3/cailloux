@@ -19,14 +19,33 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
+        libs = with pkgs; [
+          libxrandr
+          libxinerama
+          libxcursor
+          libxi
+          libclang
+          libGL
+          libxkbcommon
+          raylib
+        ];
       in
       {
         devShells.default = with pkgs; mkShell {
+          nativeBuildInputs = [
+            cmake
+            pkg-config
+            glfw
+            wayland
+            wayland-scanner
+          ] ++ libs;
           buildInputs = [
             udev
-            pkg-config
             (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
           ];
+
+          LD_LIBRARY_PATH = (pkgs.lib.makeSearchPath "lib" libs);
+          LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
 
           shellHook = ''
             fish
