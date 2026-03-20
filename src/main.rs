@@ -7,26 +7,11 @@ use std::sync::mpsc;
 
 use tablet_handler::{Stylus, StylusData};
 
-
-// use raylib::prelude::*;
+use hyprland::keyword::{Keyword, OptionValue};
 
 use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 
 fn main() {
-    // let stylus = Stylus::init();
-    // let hdl = stylus.listen_for(|ev, dat| {
-    //     match ev.event_type() {
-    //         EventType::KEY => {
-    //             if ev.code() == KeyCode::BTN_STYLUS.code() && ev.value() == 1 {
-    //                 println!("{:?}, {:?}", dat.get_pos_x(), dat.get_pos_y());
-    //             }
-    //         },
-    //         _ => (),
-    //     }
-    // });
-
-    // hdl.join().unwrap();
-    
     let mut styluses = evdev::enumerate().filter(|(_, dev)| dev.name().unwrap_or("").to_lowercase().contains("stylus")).collect::<Vec<_>>();
     let mut s1 = if styluses.len() > 1 {
         panic!("Multiple tablets detected.");
@@ -38,8 +23,21 @@ fn main() {
 
     let mut signs = std::collections::HashMap::<u128, Box<dyn Fn()>>::new();
 
-    signs.insert(414, Box::new(|| {
-        println!("Executed order 414.");
+    signs.insert(4125, Box::new(|| {
+        let name = "input:touchdevice:enabled";
+        let opt = Keyword::get(name);
+        match opt {
+            Ok(o) => {
+                match o.value {
+                    OptionValue::Int(v) => {
+                        let new_val = format!("{}", (1 - v));
+                        let _ = Keyword::set(name, new_val);
+                    },
+                    _ => println!("Unable to access state of `input:touchdevice:enabled`"),
+                }
+            },
+            _ => ()
+        }
     }));
 
     let mut x = 0;
@@ -67,22 +65,4 @@ fn main() {
             }
         }
     }
-
-    // t.join().unwrap();
-
-    // let (mut rl, thread) = raylib::init()
-    //     .size(640, 480)
-    //     .title("Hello, World!")
-    //     .transparent()
-    //     .undecorated()
-    //     .build();
-
-    // rl.set_window_opacity(0.5);
-
-    // while !rl.window_should_close() {
-    //     let mut d = rl.begin_drawing(&thread);
-
-    //     d.clear_background(Color::WHITE.alpha(0.5));
-    //     d.draw_text("Hello, World!", 12, 12, 20, Color::BLACK.alpha(0.5));
-    // }
 }
