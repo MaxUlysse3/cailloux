@@ -11,7 +11,7 @@ pub fn get_stylus() -> Device {
     } else if styluses.len() == 0 {
         panic!("No styluses detected.");
     } else {
-        device: styluses.pop().unwrap().1;
+        styluses.pop().unwrap().1
     }
 }
 
