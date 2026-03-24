@@ -20,27 +20,14 @@
           inherit system overlays;
         };
         libs = with pkgs; [
-          libxrandr
-          libxinerama
-          libxcursor
-          libxi
-          libclang
-          libGL
-          libxkbcommon
-          raylib
         ];
       in
       {
         devShells.default = with pkgs; mkShell {
           nativeBuildInputs = [
-            cmake
             pkg-config
-            glfw
-            wayland
-            wayland-scanner
           ] ++ libs;
           buildInputs = [
-            udev
             (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
           ];
 
