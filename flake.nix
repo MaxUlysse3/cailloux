@@ -38,6 +38,27 @@
             fish
           '';
         };
+
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = "cailloux";
+          version = "0.1.0";
+
+          cargoHash = "sha256-QwQfqcyjovzWV4tdP4D5p5GkzfrQMSFQWLbtbXSfuT4=";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "MaxUlysse3";
+            repo = "cailloux";
+            rev = "master";
+            sha256 = "sha256-4Yn3eBCe9zI08telEHCrP8mHYc7PQ5sfoMbF40rMnaY=";
+          };
+
+          meta = {
+            description = "A utility for my environement.";
+            homepage = "https://github.com/MaxUlysse3/cailloux";
+            license = "pkgs.lib.license.mit";
+            mainProgram = "cailloux";
+          };
+        };
       }
     );
 }
