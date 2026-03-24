@@ -1,44 +1,23 @@
 pub mod tablet_handler;
 pub mod sign_reader;
+pub mod commands;
 
-use std::thread;
-use std::time::{Duration};
-use std::sync::mpsc;
-
-use tablet_handler::{Stylus, StylusData};
+use std::collections::{HashMap};
 
 use hyprland::keyword::{Keyword, OptionValue};
 
 use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 
 fn main() {
-    let mut styluses = evdev::enumerate().filter(|(_, dev)| dev.name().unwrap_or("").to_lowercase().contains("stylus")).collect::<Vec<_>>();
-    let mut s1 = if styluses.len() > 1 {
-        panic!("Multiple tablets detected.");
-    } else if styluses.len() == 0 {
-        panic!("No styluses detected.");
-    } else {
-        styluses.pop().unwrap().1
-    };
+    let signs = commands::gen_signs();
 
-    let mut signs = std::collections::HashMap::<u128, Box<dyn Fn()>>::new();
+    start_listening(&signs);
+}
 
-    signs.insert(4125, Box::new(|| {
-        let name = "input:touchdevice:enabled";
-        let opt = Keyword::get(name);
-        match opt {
-            Ok(o) => {
-                match o.value {
-                    OptionValue::Int(v) => {
-                        let new_val = format!("{}", (1 - v));
-                        let _ = Keyword::set(name, new_val);
-                    },
-                    _ => println!("Unable to access state of `input:touchdevice:enabled`"),
-                }
-            },
-            _ => ()
-        }
-    }));
+/// Start listenings to the stylus events and dispatch the signs made to the corresponding
+/// procedures according to `signs`.
+fn start_listening(signs: &HashMap<u128, Box<dyn Fn()>>) -> ! {
+    let mut s1 = tablet_handler::get_stylus();
 
     let mut x = 0;
     let mut y = 0;
