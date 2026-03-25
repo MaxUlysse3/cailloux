@@ -3,7 +3,7 @@ use std::collections::{HashMap};
 use hyprland::shared::{HyprData};
 use hyprland::data::{Clients, Client};
 use hyprland::keyword::{OptionValue, Keyword};
-use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier};
+use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier, FullscreenType};
 
 /// Generate the `signs` dictionnary.
 ///
@@ -27,6 +27,7 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
 
     signs.insert(4125, Box::new(disable_touchscreen));
     signs.insert(41012, Box::new(close_active));
+    signs.insert(430125, Box::new(toggle_fullscreen));
 
     signs
 }
@@ -53,4 +54,9 @@ pub fn disable_touchscreen() {
 pub fn close_active() {
     let active: Client = Clients::get().expect("Could not fetch clients data.").into_iter().filter(|w| (*w).focus_history_id == 0).collect::<Vec<_>>().pop().expect("Multiple active windows.");
     Dispatch::call(DispatchType::CloseWindow(WindowIdentifier::ProcessId(active.pid as u32))).expect("Could not close active window.");
+}
+
+/// Toggle the fullscreen state of the active window.
+pub fn toggle_fullscreen() {
+    Dispatch::call(DispatchType::ToggleFullscreen(FullscreenType::Real));
 }
