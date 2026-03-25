@@ -49,7 +49,7 @@
             owner = "MaxUlysse3";
             repo = "cailloux";
             rev = "master";
-            sha256 = "sha256-4Yn3eBCe9zI08telEHCrP8mHYc7PQ5sfoMbF40rMnaY=";
+            sha256 = "sha256-bm5h1IxQZ0UQcJfFZXPbSZ8xBOcha9UJ2iEPDJlR9rU=";
           };
 
           meta = {
