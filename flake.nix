@@ -45,12 +45,14 @@
 
           cargoHash = "sha256-QwQfqcyjovzWV4tdP4D5p5GkzfrQMSFQWLbtbXSfuT4=";
 
-          src = pkgs.fetchFromGitHub {
-            owner = "MaxUlysse3";
-            repo = "cailloux";
-            rev = "master";
-            sha256 = "sha256-bm5h1IxQZ0UQcJfFZXPbSZ8xBOcha9UJ2iEPDJlR9rU=";
-          };
+          # src = pkgs.fetchFromGitHub {
+          #   owner = "MaxUlysse3";
+          #   repo = "cailloux";
+          #   rev = "master";
+          #   sha256 = "sha256-bm5h1IxQZ0UQcJfFZXPbSZ8xBOcha9UJ2iEPDJlR9rU=";
+          # };
+
+          src = ./.;
 
           meta = {
             description = "A utility for my environement.";
