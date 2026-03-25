@@ -1,6 +1,9 @@
 use std::collections::{HashMap};
 
+use hyprland::shared::{HyprData};
+use hyprland::data::{Clients, Client};
 use hyprland::keyword::{OptionValue, Keyword};
+use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier};
 
 /// Generate the `signs` dictionnary.
 ///
@@ -23,6 +26,7 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
     let mut signs = std::collections::HashMap::<u128, Box<dyn Fn()>>::new();
 
     signs.insert(4125, Box::new(disable_touchscreen));
+    signs.insert(41012, Box::new(close_active));
 
     signs
 }
@@ -43,4 +47,10 @@ pub fn disable_touchscreen() {
         },
         _ => ()
     }
+}
+
+/// Close the active window.
+pub fn close_active() {
+    let active: Client = Clients::get().expect("Could not fetch clients data.").into_iter().filter(|w| (*w).focus_history_id == 0).collect::<Vec<_>>().pop().expect("Multiple active windows.");
+    Dispatch::call(DispatchType::CloseWindow(WindowIdentifier::ProcessId(active.pid as u32))).expect("Could not close active window.");
 }
