@@ -1,4 +1,5 @@
 use std::collections::{HashMap};
+use std::process::{Command};
 
 use hyprland::shared::{HyprData};
 use hyprland::data::{Clients, Client};
@@ -28,6 +29,7 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
     signs.insert(4125, Box::new(disable_touchscreen));
     signs.insert(41012, Box::new(close_active));
     signs.insert(430125, Box::new(toggle_fullscreen));
+    signs.insert(45214, Box::new(take_screenshot));
 
     signs
 }
@@ -58,5 +60,13 @@ pub fn close_active() {
 
 /// Toggle the fullscreen state of the active window.
 pub fn toggle_fullscreen() {
-    Dispatch::call(DispatchType::ToggleFullscreen(FullscreenType::Real));
+    Dispatch::call(DispatchType::ToggleFullscreen(FullscreenType::Real)).expect("Could not toggle fullscreen.");
+}
+
+/// Take a screenshot. Requires `flameshot`.
+pub fn take_screenshot() {
+    Command::new("flameshot")
+        .arg("gui")
+        .output()
+        .expect("Could not launch flameshot.");
 }
