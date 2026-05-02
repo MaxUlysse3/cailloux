@@ -1,6 +1,12 @@
 use std::collections::{HashMap};
 use std::process::{Command};
 
+use crate::tablet_handler::{get_stylus};
+
+use evdev::{KeyCode, EventType};
+
+use uinput::{Device as UDevice, device::Builder};
+
 use hyprland::shared::{HyprData};
 use hyprland::data::{Clients, Client};
 use hyprland::keyword::{OptionValue, Keyword};
@@ -30,6 +36,7 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
     signs.insert(41012, Box::new(close_active));
     signs.insert(430125, Box::new(toggle_fullscreen));
     signs.insert(45214, Box::new(take_screenshot));
+    // signs.insert(43, Box::new(emulate_click));
 
     signs
 }
@@ -69,4 +76,41 @@ pub fn take_screenshot() {
         .arg("gui")
         .output()
         .expect("Could not launch flameshot.");
+}
+
+pub fn emulate_click() {
+    let clos = move || {
+        let mut stylus = get_stylus();
+        // let mut vstylus = Builder::open(stylus.physical_path().unwrap()).expect("Could not open stylus.")
+        //     .name("virtual stylus").unwrap()
+        //     .create().expect("Could no initialize virtual input.");
+
+
+
+        stylus.grab().expect("Could not grab stylus.");
+
+        'a: loop {
+            let mut out = vec![];
+
+            for ev in stylus.fetch_events().expect("Could not fetch events.") {
+                match ev.event_type() {
+                    EventType::KEY => if ev.code() == KeyCode::BTN_TOUCH.code() {
+                        println!("{:?}", ev);
+                        break 'a;
+                    },
+                    _ => {
+                        // Passthrough all other events
+                        
+                        out.push(ev);
+                    },
+                }
+            }
+            stylus.send_events(&out).expect("Coud not send events to stylus.");
+            println!("{:?}", out);
+        }
+
+        stylus.ungrab().expect("Could not ungrab stylus.");
+    };
+
+    clos();
 }

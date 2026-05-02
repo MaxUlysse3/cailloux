@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 evdev = "0.13.2"
 hyprland = "0.4.0-beta.3"
+uinput = "0.1.3"

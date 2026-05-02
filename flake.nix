@@ -20,6 +20,7 @@
           inherit system overlays;
         };
         libs = with pkgs; [
+          udev
         ];
       in
       {
@@ -53,6 +54,8 @@
           # };
 
           src = ./.;
+
+          buildInputs = libs;
 
           meta = {
             description = "A utility for my environement.";
