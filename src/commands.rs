@@ -1,5 +1,4 @@
-use std::collections::{HashMap};
-use std::process::{Command};
+use std::collections::{HashMap}; use std::process::{Command};
 
 use crate::tablet_handler::{get_stylus};
 use crate::Env;
