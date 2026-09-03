@@ -2,6 +2,7 @@ use std::collections::{HashMap};
 use std::thread;
 
 use crate::tablet_handler::{get_stylus};
+use crate::Env;
 
 use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 
@@ -9,8 +10,8 @@ use hyprland::data::{Monitor, Transforms};
 use hyprland::shared::{HyprDataActive};
 
 /// Begin reading the sign that is being made.
-pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u128, Box<dyn Fn()>>) {
-    let clos = move || {
+pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u128, Box<dyn Fn(&mut Env)>>, env: &mut Env) {
+    let mut clos = move || {
         println!("Started reading signs! (center : {center:?})");
         let mut stylus = get_stylus();
         let mut active_sign: u128 = 4;
@@ -72,7 +73,7 @@ pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u
         }
         match signs.get(&active_sign) {
             None => println!("Invalid pattern."),
-            Some(f) => f(),
+            Some(f) => f(env),
         }
     };
 

@@ -8,6 +8,25 @@ use hyprland::keyword::{Keyword, OptionValue};
 
 use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 
+pub struct Env {
+    active_state: bool,
+}
+
+impl Env {
+    pub fn new() -> Self {
+        Self {
+            active_state: true,
+        }
+    }
+
+    pub fn get_active_state(&self) -> bool {
+        self.active_state
+    }
+    pub fn set_active_state(&mut self, new: bool) {
+        self.active_state = new;
+    }
+}
+
 fn main() {
     let signs = commands::gen_signs();
 
@@ -16,19 +35,21 @@ fn main() {
 
 /// Start listenings to the stylus events and dispatch the signs made to the corresponding
 /// procedures according to `signs`.
-fn start_listening(signs: &HashMap<u128, Box<dyn Fn()>>) -> ! {
+fn start_listening(signs: &HashMap<u128, Box<dyn Fn(&mut Env)>>) -> ! {
     let mut s1 = tablet_handler::get_stylus();
 
     let mut x = 0;
     let mut y = 0;
 
+    let mut environment = Env::new();
+ 
     loop {
         for e in s1.fetch_events().expect("Error fetching events from thread 1.") {
             match e.event_type() {
                 EventType::KEY => {
                     if e.code() == KeyCode::BTN_STYLUS.code() && e.value() == 1 {
                         println!("Button pressed from thread 1!");
-                        sign_reader::start_reading_signs((x, y), 2000, &signs);
+                        sign_reader::start_reading_signs((x, y), 2000, &signs, &mut environment);
                     }
                 },
                 EventType::ABSOLUTE => {

@@ -2,6 +2,7 @@ use std::collections::{HashMap};
 use std::process::{Command};
 
 use crate::tablet_handler::{get_stylus};
+use crate::Env;
 
 use evdev::{KeyCode, EventType};
 
@@ -29,8 +30,8 @@ use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier, FullscreenTyp
 /// Because the grid is centered under the mouse on activation,
 /// the sings should _always_ begin with 4.
 /// Also, diagonal movement (`37` for exemple) cannot be detected.
-pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
-    let mut signs = std::collections::HashMap::<u128, Box<dyn Fn()>>::new();
+pub fn gen_signs() -> HashMap<u128, Box<dyn Fn(&mut Env)>> {
+    let mut signs = std::collections::HashMap::<u128, Box<dyn Fn(&mut Env)>>::new();
 
     signs.insert(4125, Box::new(disable_touchscreen));
     signs.insert(41012, Box::new(close_active));
@@ -42,43 +43,39 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn()>> {
 }
 
 /// Toggle the disabling of the touchscreen.
-pub fn disable_touchscreen() {
-    let name = "input:touchdevice:enabled";
-    let opt = Keyword::get(name);
-    match opt {
-        Ok(o) => {
-            match o.value {
-                OptionValue::Int(v) => {
-                    let new_val = format!("{}", (1 - v));
-                    let _ = Keyword::set(name, new_val);
-                },
-                _ => println!("Unable to access state of `input:touchdevice:enabled`"),
-            }
-        },
-        _ => ()
-    }
+pub fn disable_touchscreen(env: &mut Env) {
+    // let name = "input:touchdevice:enabled";
+    // let opt = Keyword::get(name);
+    let new_val = format!("{}", if env.get_active_state() { 0 } else { 1 });
+    println!("Toggling touchscreen");
+    Command::new("hyprctl")
+        .args(["eval", &("hl.config( {input = { touchdevice = { enabled = ".to_string() + &new_val.to_string() + " }}})")])
+        .output()
+        .expect("Could not change touchscreen activation.");
+    let new_val = env.get_active_state();
+    env.set_active_state(!new_val);
 }
 
 /// Close the active window.
-pub fn close_active() {
+pub fn close_active(_: &mut Env) {
     let active: Client = Clients::get().expect("Could not fetch clients data.").into_iter().filter(|w| (*w).focus_history_id == 0).collect::<Vec<_>>().pop().expect("Multiple active windows.");
     Dispatch::call(DispatchType::CloseWindow(WindowIdentifier::ProcessId(active.pid as u32))).expect("Could not close active window.");
 }
 
 /// Toggle the fullscreen state of the active window.
-pub fn toggle_fullscreen() {
+pub fn toggle_fullscreen(_: &mut Env) {
     Dispatch::call(DispatchType::ToggleFullscreen(FullscreenType::Real)).expect("Could not toggle fullscreen.");
 }
 
 /// Take a screenshot. Requires `flameshot`.
-pub fn take_screenshot() {
+pub fn take_screenshot(_: &mut Env) {
     Command::new("flameshot")
         .arg("gui")
         .output()
         .expect("Could not launch flameshot.");
 }
 
-pub fn emulate_click() {
+pub fn emulate_click(_: &mut Env) {
     let clos = move || {
         let mut stylus = get_stylus();
         // let mut vstylus = Builder::open(stylus.physical_path().unwrap()).expect("Could not open stylus.")
