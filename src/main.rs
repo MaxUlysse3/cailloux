@@ -4,7 +4,7 @@ pub mod commands;
 
 use std::collections::{HashMap};
 
-use hyprland::keyword::{Keyword, OptionValue};
+// use hyprland::keyword::{Keyword, OptionValue};
 
 use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 

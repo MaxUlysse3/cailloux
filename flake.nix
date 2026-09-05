@@ -44,7 +44,8 @@
           pname = "cailloux";
           version = "0.1.0";
 
-          cargoHash = "sha256-ooJgfn8y2LFPqgWVTouJr7xGlEasOafATk+z4ujsgUc=";
+          # cargoHash = "sha256-ooJgfn8y2LFPqgWVTouJr7xGlEasOafATk+z4ujsgUc=";
+          cargoHash = "";
 
           # src = pkgs.fetchFromGitHub {
           #   owner = "MaxUlysse3";

@@ -7,10 +7,10 @@ use evdev::{KeyCode, EventType};
 
 use uinput::{Device as UDevice, device::Builder};
 
-use hyprland::shared::{HyprData};
-use hyprland::data::{Clients, Client};
-use hyprland::keyword::{OptionValue, Keyword};
-use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier, FullscreenType};
+// use hyprland::shared::{HyprData};
+// use hyprland::data::{Clients, Client};
+// use hyprland::keyword::{OptionValue, Keyword};
+// use hyprland::dispatch::{Dispatch, DispatchType, WindowIdentifier, FullscreenType};
 
 /// Generate the `signs` dictionnary.
 ///
@@ -44,7 +44,6 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn(&mut Env)>> {
 /// Toggle the disabling of the touchscreen.
 pub fn disable_touchscreen(env: &mut Env) {
     // let name = "input:touchdevice:enabled";
-    // let opt = Keyword::get(name);
     let new_val = format!("{}", if env.get_active_state() { 0 } else { 1 });
     println!("Toggling touchscreen");
     Command::new("hyprctl")
@@ -57,13 +56,18 @@ pub fn disable_touchscreen(env: &mut Env) {
 
 /// Close the active window.
 pub fn close_active(_: &mut Env) {
-    let active: Client = Clients::get().expect("Could not fetch clients data.").into_iter().filter(|w| (*w).focus_history_id == 0).collect::<Vec<_>>().pop().expect("Multiple active windows.");
-    Dispatch::call(DispatchType::CloseWindow(WindowIdentifier::ProcessId(active.pid as u32))).expect("Could not close active window.");
+    Command::new("hyprctl")
+        .args(["eval", "hl.dispatch(hl.dsp.window.close())"])
+        .output()
+        .expect("Could not close active window.");
 }
 
 /// Toggle the fullscreen state of the active window.
 pub fn toggle_fullscreen(_: &mut Env) {
-    Dispatch::call(DispatchType::ToggleFullscreen(FullscreenType::Real)).expect("Could not toggle fullscreen.");
+    Command::new("hyprctl")
+        .args(["eval", "hl.dispatch(hl.dsp.window.fullscreen())"])
+        .output()
+        .expect("Could not toggle fullscreen.");
 }
 
 /// Take a screenshot. Requires `flameshot`.
