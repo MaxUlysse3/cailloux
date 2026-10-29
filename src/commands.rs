@@ -45,7 +45,7 @@ pub fn gen_signs() -> HashMap<u128, Box<dyn Fn(&mut Env)>> {
 pub fn disable_touchscreen(env: &mut Env) {
     // let name = "input:touchdevice:enabled";
     let new_val = format!("{}", if env.get_active_state() { 0 } else { 1 });
-    println!("Toggling touchscreen");
+    println!("Toggling touchscreen : {new_val}");
     Command::new("hyprctl")
         .args(["eval", &("hl.config( {input = { touchdevice = { enabled = ".to_string() + &new_val.to_string() + " }}})")])
         .output()

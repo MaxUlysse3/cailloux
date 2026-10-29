@@ -1,5 +1,6 @@
 use std::collections::{HashMap};
 use std::thread;
+use std::process::Command;
 
 use crate::tablet_handler::{get_stylus};
 use crate::Env;
@@ -8,6 +9,26 @@ use evdev::{Device, EventType, KeyCode, AbsoluteAxisCode};
 
 use hyprland::data::{Monitor, Transforms};
 use hyprland::shared::{HyprDataActive};
+
+use regex::Regex;
+use regex::regex;
+
+pub fn get_transform() -> Result<usize, Box<dyn std::error::Error>> {
+    let out = Command::new("hyprctl")
+        .args(["monitors"])
+        .output() ?
+        .stdout;
+
+    let data = std::str::from_utf8(&out)?;
+    // println!("{}", data);
+
+    let reg = regex!(r"transform: (\d)");
+    let found = reg.captures(data).unwrap().get(1).unwrap().as_str().parse::<usize>()?;
+
+    // println!("Found transform : {found:?}");
+    
+    Ok(found)
+}
 
 /// Begin reading the sign that is being made.
 pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u128, Box<dyn Fn(&mut Env)>>, env: &mut Env) {
@@ -19,17 +40,9 @@ pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u
         let mut x = 0;
         let mut y = 1;
         let mut counter = 0;
+        let rotation = get_transform().expect("Could not get monitor transform.");
         let mut moved = |x, y| {
             // println!("Move event registered!!");
-            let transform = Monitor::get_active().expect("Could not read monitor data.").transform;
-
-            let rotation = match transform {
-                Transforms::Normal => 0,
-                Transforms::Normal90 => 1,
-                Transforms::Normal180 => 2,
-                Transforms::Normal270 => 3,
-                _ => panic!("Symmetry transforms are not yet supported."),
-            };
 
             let cell = get_cell_relative(x, y, cell_size, rotation);
             // println!("Cell : {cell:?} (last : {last_cell:?})");
@@ -64,7 +77,7 @@ pub fn start_reading_signs(center: (i32, i32), cell_size: u32, signs: &HashMap<u
                         _ => (), // Ignore other events
                     },
                     EventType::KEY => if ev.code() == KeyCode::BTN_STYLUS.code() {
-                        println!("{:?}", active_sign);
+                        println!("Detected button action. Sign : {:?}", active_sign);
                         break 'a;
                     },
                     _ => () // Ignore all other events
