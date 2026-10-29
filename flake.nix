@@ -45,7 +45,7 @@
           version = "0.1.0";
 
           # cargoHash = "sha256-ooJgfn8y2LFPqgWVTouJr7xGlEasOafATk+z4ujsgUc=";
-          cargoHash = "sha256-bvsekjpO68DJx+Bv7pnSa92XRkqVd++hSX2eHKBHSK0=";
+          cargoHash = "sha256-O3hhpH1LBVGV1rB63Cg8xJEyKafFRoc3u5+2CeWrvvw=";
 
           # src = pkgs.fetchFromGitHub {
           #   owner = "MaxUlysse3";
